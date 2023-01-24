@@ -1,0 +1,14 @@
+[
+	{
+		"nombre": "caja leo",
+		"precio": 200,
+		"foto": "foto caja",
+		"id": 1
+	},
+	{
+		"nombre": "caja Marcos",
+		"precio": 200,
+		"foto": "foto caja",
+		"id": 2
+	}
+]

@@ -1,69 +1,151 @@
 
-
-class ProductsManager{
-    constructor() {
-
-        this.productos = [];
-        this.id = 0;
-    }
-
-    listar(id){
-
-        let contenido = this.productos.filter((elemento) => { return elemento.id == id })
+import * as fs from 'fs';
 
 
-        return contenido
+class ProductsManager {
 
-    }
+    constructor(nombreArchivo) {
 
-    listarAll(){
+        this.nombreArchivo = nombreArchivo;
         
-        return this.productos
-      
     }
+    async actualizar(id,prod){
+        const productos= await this.listarAll()
 
-    guardar(prod){
-        if (this.productos.length == 0) {
-            prod.id = 1
-        } else {
-
-            // tenemos que buscar en que posicion del array esta el ultimo elemento agregado
-            const ultimaPosicion =   this.productos.length - 1
-
-            // ahora que tenemos la posicion obtemos el ultimo producto
-            const ultimoProducto = this.productos[ultimaPosicion]
-
-            // ahora obtenemos el id de ese pdroducto y le sumamos 1
-            const id = ultimoProducto.id + 1
-
-            prod.id = id
-        }
-
-        this.productos.push(prod);
-        return prod
-
-    }
-
-    actualizar(prod,id){
         let posicion = null
-        for(let prod in this.productos){
-            if (this.productos[prod].id == id){
+        for(let prod in productos){
+            console.log('prod', productos[prod].id)
+            console.log(id)
+            if (productos[prod].id == id){
                 posicion = prod
+                console.log('holaaa')
             } 
         }
-        this.productos[posicion] = {...prod}
+     productos[posicion] = {...prod}
+
+        const contenido = JSON.stringify(productos, null, '\t');
+
+       
+
+        await fs.promises.writeFile(this.nombreArchivo, contenido)
+    }
+
+    async guardar(obj) {
+
+        try {
+
+            if (!fs.existsSync(this.nombreArchivo)) {
+                await fs.promises.writeFile(this.nombreArchivo, '[]')
+            };
 
 
-    //let productoActualizado = this.productos.filter((e) => {e.id == id})
-    return this.productos[posicion]
+            const data = JSON.parse(await fs.promises.readFile(this.nombreArchivo));
+
+
+            if (data.length == 0) {
+                obj.id = 1
+            } else {
+                obj.id = data[data.length - 1].id + 1;
+            }
+
+            data.push(obj);
+
+            const contenido = JSON.stringify(data, null, '\t');
+
+            await fs.promises.writeFile(this.nombreArchivo, contenido)
+
+            console.log('funcion save')
+
+            return contenido
+
+
+
+
+        }
+        catch (e) {
+            console.log(e)
+        }
+
+
 
     }
 
-    borrar(id){
+    async listar(id) {
 
-        this.productos = this.productos.filter((elemento) => { return elemento.id !== id })
+        try {
+            const contenido = JSON.parse(await fs.promises.readFile(this.nombreArchivo))
+
+            let contenido1 = contenido.filter((elemento) => { return elemento.id == id })
+
+            return contenido1[0];
+
+
+        }
+        catch (e) {
+            console.log(e)
+        }
 
     }
+
+    async listarAll() {
+
+        try {
+            const data = await fs.promises.readFile(this.nombreArchivo, 'utf-8')
+            let contenido = JSON.parse(data);
+           
+            return contenido;
+        }
+
+
+        catch (e) {
+            console.log(e)
+        }
+
+
+    }
+
+    async deleteById(id) {
+
+        try {
+
+            const contenido = await this.listarAll()
+
+            let contenido1 = contenido.filter((elemento) => { return elemento.id != id })
+            console.log(contenido1)
+
+            const contenidoFinal = JSON.stringify(contenido1, null, '\t');
+
+            await  fs.writeFile(this.nombreArchivo, contenidoFinal, error => {
+                if (error) {
+                    console.log('hubo un error')
+                } else {
+                    console.log('deleteById guardado')
+                }
+            })
+
+        }
+
+
+        catch (e) {
+            console.log(e)
+        }
+
+    }
+
+
+
+    async deleteAll() {
+        try {
+            await fs.promises.writeFile(this.nombreArchivo, '')
+            console.log('guardado deleteAll')
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
+
+
 }
 
 export default ProductsManager

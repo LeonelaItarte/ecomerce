@@ -1,0 +1,13 @@
+[
+	{
+		"productos": [
+			{
+				"nombre": "caja Marcos",
+				"precio": 200,
+				"foto": "foto caja",
+				"id": 2
+			}
+		],
+		"id": 0
+	}
+]
